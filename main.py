@@ -1,22 +1,30 @@
 
-from flask import Flask, render_template, send_from_directory, abort
+from flask import Flask, render_template, send_from_directory, abort, jsonify
 import os
 
 app = Flask(__name__, static_folder='.', template_folder='.')
 
+@app.route('/debug')
+def debug():
+    files = os.listdir('.')
+    html_files = [f for f in files if f.endswith('.html')]
+    return jsonify({
+        'all_files': files,
+        'html_files': html_files,
+        'current_directory': os.getcwd()
+    })
+
 @app.route('/')
 def dashboard():
-    try:
-        return send_from_directory('.', 'dashboard.html')
-    except FileNotFoundError:
-        abort(404)
+    if not os.path.exists('dashboard.html'):
+        return f"dashboard.html ফাইল পাওয়া যায়নি। Available files: {os.listdir('.')}", 404
+    return send_from_directory('.', 'dashboard.html')
 
 @app.route('/game')
 def game():
-    try:
-        return send_from_directory('.', 'index.html')
-    except FileNotFoundError:
-        abort(404)
+    if not os.path.exists('index.html'):
+        return f"index.html ফাইল পাওয়া যায়নি। Available files: {os.listdir('.')}", 404
+    return send_from_directory('.', 'index.html')
 
 @app.route('/<path:filename>')
 def static_files(filename):
