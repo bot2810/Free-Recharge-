@@ -1,20 +1,29 @@
 
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, abort
 import os
 
 app = Flask(__name__, static_folder='.', template_folder='.')
 
 @app.route('/')
 def dashboard():
-    return send_from_directory('.', 'dashboard.html')
+    try:
+        return send_from_directory('.', 'dashboard.html')
+    except FileNotFoundError:
+        abort(404)
 
 @app.route('/game')
 def game():
-    return send_from_directory('.', 'index.html')
+    try:
+        return send_from_directory('.', 'index.html')
+    except FileNotFoundError:
+        abort(404)
 
 @app.route('/<path:filename>')
 def static_files(filename):
-    return send_from_directory('.', filename)
+    try:
+        return send_from_directory('.', filename)
+    except FileNotFoundError:
+        abort(404)
 
 @app.after_request
 def after_request(response):
